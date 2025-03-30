@@ -57,7 +57,7 @@ public class SneakerService {
     }
 
     // Delete Sneaker
-    public ResponseEntity<Sneaker> deleteSneaker(Long id) {
+    public ResponseEntity<Void> deleteSneaker(Long id) {
         sneakerRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
