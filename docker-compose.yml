@@ -1,0 +1,32 @@
+version: '3.8'
+
+# Database service that runs Oracle XE 11g
+services:
+  db:
+    image: oracleinanutshell/oracle-xe-11g
+    environment:
+      - ORACLE_ALLOW_REMOTE=true
+      - ORACLE_PASSWORD=azarshah0
+    ports:
+      - "1521:1521"
+    volumes:
+      - oracle-data:/u01/app/oracle
+
+  # Application service that runs the Spring Boot app
+  app:
+    build: .
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@db:1521:xe
+      - SPRING_DATASOURCE_USERNAME=SYSTEM
+      - SPRING_DATASOURCE_PASSWORD=azarshah0
+      - SPRING_APPLICATION_NAME=sneaker-shop
+      - SPRING_SECURITY_USER_NAME=admin
+      - SPRING_SECURITY_USER_PASSWORD=jiring77
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+# Persistent volume for Oracle database data
+volumes:
+  oracle-data:
