@@ -1,32 +1,42 @@
+# This Docker Compose file sets up a Spring Boot app with an Oracle XE database.
 version: '3.8'
 
-# Database service that runs Oracle XE 11g
+
 services:
+  # Database service using Oracle XE 11g with persistent storage and health checks.
   db:
     image: oracleinanutshell/oracle-xe-11g
     environment:
       - ORACLE_ALLOW_REMOTE=true
-      - ORACLE_PASSWORD=azarshah0
+      - ORACLE_PASSWORD=${ORACLE_PASSWORD}
     ports:
       - "1521:1521"
     volumes:
       - oracle-data:/u01/app/oracle
+    restart: always
+    healthcheck:
+      test: [ "CMD", "tnsping", "xe" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
-  # Application service that runs the Spring Boot app
+  # Spring Boot application service, depends on healthy DB and connects to Oracle.
   app:
     build: .
     environment:
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@db:1521:xe
-      - SPRING_DATASOURCE_USERNAME=SYSTEM
-      - SPRING_DATASOURCE_PASSWORD=azarshah0
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - SPRING_APPLICATION_NAME=sneaker-shop
-      - SPRING_SECURITY_USER_NAME=admin
-      - SPRING_SECURITY_USER_PASSWORD=jiring77
+      - SPRING_SECURITY_USER_NAME=${ADMIN_USER}
+      - SPRING_SECURITY_USER_PASSWORD=${ADMIN_PASSWORD}
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    restart: always
 
-# Persistent volume for Oracle database data
+# Volume to persist Oracle DB data across container restarts.
 volumes:
   oracle-data:
