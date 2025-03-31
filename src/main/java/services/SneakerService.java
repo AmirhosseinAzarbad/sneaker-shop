@@ -3,12 +3,9 @@ package services;
 
 import jakarta.persistence.EntityNotFoundException;
 import models.Sneaker;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import repositories.SneakerRepository;
-
-import java.util.Optional;
 
 @Service
 public class SneakerService {
@@ -22,16 +19,14 @@ public class SneakerService {
 
 
     // Create Sneaker
-    public ResponseEntity<Sneaker> addSneaker(Sneaker sneaker) {
-        if (sneaker == null)
-            return ResponseEntity.badRequest().build();
-        Sneaker validSneaker = sneakerRepository.save(sneaker);
-        return ResponseEntity.ok(validSneaker);
+    public Sneaker addSneaker(Sneaker sneaker) {
+        return sneakerRepository.save(sneaker);
     }
 
     // Read Sneaker
-    public Optional<Sneaker> getSneaker(Long id) {
-        return sneakerRepository.findById(id);
+    public Sneaker getSneaker(Long id) {
+        return sneakerRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Sneaker not found"));
     }
 
     public Iterable<Sneaker> getAllSneakers() {
@@ -39,27 +34,19 @@ public class SneakerService {
     }
 
     // Update Sneaker
-    @Transactional
-    public ResponseEntity<Sneaker> updateSneaker(Long id,Sneaker sneaker) {
-        if (sneaker == null)
-            return ResponseEntity.badRequest().build();
+    public Sneaker updateSneaker(Long id, Sneaker sneaker) {
         Sneaker existingSneaker = sneakerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Sneaker not found"));
 
-            existingSneaker.setName(sneaker.getName());
-            existingSneaker.setBrand(sneaker.getBrand());
-            existingSneaker.setPrice(sneaker.getPrice());
-            existingSneaker.setSize(sneaker.getSize());
-            existingSneaker.setColor(sneaker.getColor());
+        BeanUtils.copyProperties(sneaker, existingSneaker, "id");
 //            sneakerRepository.save(existingSneaker);     will be done automatically by @Transactional
-            return ResponseEntity.ok(existingSneaker);
+        return existingSneaker;
 
     }
 
     // Delete Sneaker
-    public ResponseEntity<Void> deleteSneaker(Long id) {
+    public void deleteSneaker(Long id) {
         sneakerRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 
 }
