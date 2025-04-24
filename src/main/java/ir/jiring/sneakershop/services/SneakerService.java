@@ -1,11 +1,11 @@
-package services;
+package ir.jiring.sneakershop.services;
 
 
 import jakarta.persistence.EntityNotFoundException;
-import models.Sneaker;
+import ir.jiring.sneakershop.models.Sneaker;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import repositories.SneakerRepository;
+import ir.jiring.sneakershop.repositories.SneakerRepository;
 
 @Service
 public class SneakerService {

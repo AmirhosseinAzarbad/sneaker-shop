@@ -1,4 +1,4 @@
-package controllers;
+package ir.jiring.sneakershop.controllers;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;

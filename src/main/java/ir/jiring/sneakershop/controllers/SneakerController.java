@@ -1,10 +1,10 @@
-package controllers;
+package ir.jiring.sneakershop.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
-import models.Sneaker;
+import ir.jiring.sneakershop.models.Sneaker;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import services.SneakerService;
+import ir.jiring.sneakershop.services.SneakerService;
 
 @RestController
 @RequestMapping("/api/sneakers")

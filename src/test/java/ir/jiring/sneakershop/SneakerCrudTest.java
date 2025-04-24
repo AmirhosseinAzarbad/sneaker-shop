@@ -1,8 +1,8 @@
 package ir.jiring.sneakershop;
 
-import controllers.SneakerController;
+import ir.jiring.sneakershop.controllers.SneakerController;
 import jakarta.persistence.EntityNotFoundException;
-import models.Sneaker;
+import ir.jiring.sneakershop.models.Sneaker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import services.SneakerService;
+import ir.jiring.sneakershop.services.SneakerService;
 
 import java.util.List;
 
