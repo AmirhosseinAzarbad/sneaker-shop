@@ -1,4 +1,4 @@
-package models;
+package ir.jiring.sneakershop.models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

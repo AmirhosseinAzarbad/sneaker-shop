@@ -1,4 +1,4 @@
-package ir.jiring.sneakershop.dto;
+package ir.jiring.sneakershop.dto.password;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

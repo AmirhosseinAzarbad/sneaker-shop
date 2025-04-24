@@ -1,4 +1,4 @@
-package ir.jiring.sneakershop.dto;
+package ir.jiring.sneakershop.dto.auth;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,8 +1,8 @@
 package ir.jiring.sneakershop.controllers;
 
-import ir.jiring.sneakershop.dto.LoginRequest;
-import ir.jiring.sneakershop.dto.RegisterRequest;
-import ir.jiring.sneakershop.dto.UpdatePasswordRequest;
+import ir.jiring.sneakershop.dto.auth.LoginRequest;
+import ir.jiring.sneakershop.dto.auth.RegisterRequest;
+import ir.jiring.sneakershop.dto.password.UpdatePasswordRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
