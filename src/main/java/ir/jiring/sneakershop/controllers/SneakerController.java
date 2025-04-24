@@ -1,16 +1,21 @@
 package ir.jiring.sneakershop.controllers;
 
-import jakarta.persistence.EntityNotFoundException;
-import ir.jiring.sneakershop.models.Sneaker;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import ir.jiring.sneakershop.dto.sneaker.SneakerAddRequest;
+import ir.jiring.sneakershop.dto.sneaker.SneakerResponse;
+import ir.jiring.sneakershop.dto.sneaker.SneakerUpdateRequest;
 import ir.jiring.sneakershop.services.SneakerService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/sneakers")
 public class SneakerController {
 
-    // Constructor injection
     private final SneakerService sneakerService;
 
     public SneakerController(SneakerService sneakerService) {
@@ -18,38 +23,27 @@ public class SneakerController {
     }
 
     @PostMapping
-    public ResponseEntity<Sneaker> addSneaker(@RequestBody Sneaker sneaker) {
-        Sneaker savedSneaker = sneakerService.addSneaker(sneaker);
-        return ResponseEntity.ok(savedSneaker);
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OWNER')")
+    public ResponseEntity<SneakerResponse> addSneaker(@Valid @RequestBody SneakerAddRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(sneakerService.addSneaker(request));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Sneaker> getSneaker(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(sneakerService.getSneaker(id));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping
-    public Iterable<Sneaker> getAllSneakers() {
-        return sneakerService.getAllSneakers();
+    @GetMapping("/show")
+    public ResponseEntity<Iterable<SneakerResponse>> getAllSneakers() {
+        return ResponseEntity.ok(sneakerService.getAllSneakers());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Sneaker> updateSneaker(@PathVariable Long id, @RequestBody Sneaker sneaker) {
-        try {
-            Sneaker updatedSneaker = sneakerService.updateSneaker(id, sneaker);
-            return ResponseEntity.ok(updatedSneaker);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OWNER')")
+    public ResponseEntity<SneakerResponse> updateSneaker(@PathVariable UUID id, @Valid @RequestBody SneakerUpdateRequest request) {
+        return ResponseEntity.ok(sneakerService.updateSneaker(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSneaker(@PathVariable Long id) {
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OWNER')")
+    public ResponseEntity<Void> deleteSneaker(@PathVariable UUID id) {
         sneakerService.deleteSneaker(id);
         return ResponseEntity.noContent().build();
     }
+
 }
