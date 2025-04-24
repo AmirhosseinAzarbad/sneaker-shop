@@ -1,7 +1,8 @@
 package ir.jiring.sneakershop;
 
-import controllers.SneakerController;
-import models.Sneaker;
+import ir.jiring.sneakershop.controllers.SneakerController;
+import jakarta.persistence.EntityNotFoundException;
+import ir.jiring.sneakershop.models.Sneaker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,10 +11,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import services.SneakerService;
+import ir.jiring.sneakershop.services.SneakerService;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -43,7 +43,7 @@ public class SneakerCrudTest {
 
     @Test
     public void testAddSneaker() {
-        when(sneakerService.addSneaker(any(Sneaker.class))).thenReturn(ResponseEntity.ok(sneaker));
+        when(sneakerService.addSneaker(any(Sneaker.class))).thenReturn(sneaker);
 
         ResponseEntity<Sneaker> response = sneakerController.addSneaker(sneaker);
 
@@ -54,7 +54,7 @@ public class SneakerCrudTest {
 
     @Test
     public void testGetSneaker() {
-        when(sneakerService.getSneaker(1L)).thenReturn(Optional.of(sneaker));
+        when(sneakerService.getSneaker(1L)).thenReturn(sneaker);
 
         ResponseEntity<Sneaker> response = sneakerController.getSneaker(1L);
         assertNotNull(response.getBody(), "Response body should not be null");
@@ -82,7 +82,7 @@ public class SneakerCrudTest {
         updatedSneaker.setSize("43");
         updatedSneaker.setColor("White");
 
-        when(sneakerService.updateSneaker(1L, updatedSneaker)).thenReturn(ResponseEntity.ok(updatedSneaker));
+        when(sneakerService.updateSneaker(1L, updatedSneaker)).thenReturn(updatedSneaker);
 
         ResponseEntity<Sneaker> response = sneakerController.updateSneaker(1L, updatedSneaker);
 
@@ -93,11 +93,9 @@ public class SneakerCrudTest {
 
     @Test
     public void testDeleteSneaker() {
-        SneakerService mockedSneakerService = mock(SneakerService.class);
+        doNothing().when(sneakerService).deleteSneaker(anyLong());
 
-        when(mockedSneakerService.deleteSneaker(anyLong())).thenReturn(ResponseEntity.noContent().build());
-
-        ResponseEntity<Void> response = mockedSneakerService.deleteSneaker(1L);
+        ResponseEntity<Void> response = sneakerController.deleteSneaker(1L);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
@@ -105,7 +103,7 @@ public class SneakerCrudTest {
 
     @Test
     public void testGetSneakerNotFound() {
-        when(sneakerService.getSneaker(2L)).thenReturn(Optional.empty());
+        when(sneakerService.getSneaker(2L)).thenThrow(new EntityNotFoundException("Sneaker not found"));
 
         ResponseEntity<Sneaker> response = sneakerController.getSneaker(2L);
 
