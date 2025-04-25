@@ -3,6 +3,7 @@ package ir.jiring.sneakershop.controllers;
 import ir.jiring.sneakershop.dto.error.ErrorResponse;
 import ir.jiring.sneakershop.exceptions.InvalidOtpException;
 import ir.jiring.sneakershop.exceptions.InvalidPasswordException;
+import ir.jiring.sneakershop.exceptions.MaxOtpRequestsExceededException;
 import ir.jiring.sneakershop.exceptions.MissingPasswordException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -129,6 +130,17 @@ public class GlobalExceptionHandler {
                 null
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(MaxOtpRequestsExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxOtpRequests(MaxOtpRequestsExceededException e) {
+        ErrorResponse error = new ErrorResponse(
+                e.getMessage(),
+                HttpStatus.TOO_MANY_REQUESTS.value(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(error);
     }
 
 
