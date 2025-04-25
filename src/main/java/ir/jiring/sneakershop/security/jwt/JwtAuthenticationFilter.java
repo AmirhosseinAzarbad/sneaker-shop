@@ -29,6 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/auth/login",
             "/api/sneakers/show",
             "/api/sneakers/show/**",
+            "/auth/password-reset/**",
+            "/auth/send-otp",
             "/api/sneaker-variants/show/**"
     );
 
@@ -47,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response,@NonNull FilterChain filterChain)
             throws ServletException, IOException {
         logger.debug("Entering JWT Authentication Filter...");
 
