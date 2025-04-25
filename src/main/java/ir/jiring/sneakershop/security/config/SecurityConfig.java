@@ -37,7 +37,8 @@ public class SecurityConfig {
                 .exceptionHandling(handler -> handler.authenticationEntryPoint(entryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register", "/auth/login","/api/sneakers/show","/api/sneakers/show/**").permitAll()
+                        .requestMatchers("/auth/register", "/auth/login","/api/sneakers/show","/api/sneakers/show/**"
+                        ,"/api/sneaker-variants/show/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
