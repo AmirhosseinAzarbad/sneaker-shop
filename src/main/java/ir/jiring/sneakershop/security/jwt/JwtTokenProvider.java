@@ -4,10 +4,10 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import ir.jiring.sneakershop.models.User;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import ir.jiring.sneakershop.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
@@ -29,8 +29,9 @@ public class JwtTokenProvider {
     }
 
     public String createToken(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (userRepository.findByUsername(username).isEmpty()) {
+            throw new UsernameNotFoundException("User not found");
+        }
 
         return Jwts.builder()
                 .setSubject(username)
