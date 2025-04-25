@@ -1,19 +1,18 @@
 package ir.jiring.sneakershop.security.jwt;
 
+import ir.jiring.sneakershop.models.User;
+import ir.jiring.sneakershop.repositories.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ir.jiring.sneakershop.models.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ir.jiring.sneakershop.repositories.UserRepository;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -25,23 +24,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
 
-    @Autowired
+    private static final List<String> PUBLIC_PATHS = List.of(
+            "/auth/register",
+            "/auth/login",
+            "/api/sneakers/show",
+            "/api/sneakers/show/**"
+    );
+
     public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
+        boolean shouldNotFilter = PUBLIC_PATHS.stream().anyMatch(path::startsWith);
+        logger.debug("Request URI: " + path + ", Should not filter: " + shouldNotFilter);
+        return shouldNotFilter;
+    }
 
-        if (path.startsWith("/auth/register") || path.startsWith("/auth/login")) {
-            System.out.println("Skipping JWT filter for path: " + path);
-            filterChain.doFilter(request, response);
-            return;
-        }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
+            throws ServletException, IOException {
+        logger.debug("Entering JWT Authentication Filter...");
 
         String token = request.getHeader("Authorization");
 
@@ -52,13 +59,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 User user = userRepository.findByUsername(username)
                         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-                List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
+                List<SimpleGrantedAuthority> authorities = Collections.singletonList(
+                        new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+                );
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(username, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
         filterChain.doFilter(request, response);
     }
-
 }
 
