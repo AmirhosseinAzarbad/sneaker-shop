@@ -1,10 +1,7 @@
 package ir.jiring.sneakershop.controllers;
 
 import ir.jiring.sneakershop.dto.error.ErrorResponse;
-import ir.jiring.sneakershop.exceptions.InvalidOtpException;
-import ir.jiring.sneakershop.exceptions.InvalidPasswordException;
-import ir.jiring.sneakershop.exceptions.MaxOtpRequestsExceededException;
-import ir.jiring.sneakershop.exceptions.MissingPasswordException;
+import ir.jiring.sneakershop.exceptions.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -141,6 +138,16 @@ public class GlobalExceptionHandler {
                 null
         );
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(error);
+    }
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<ErrorResponse> handleInsufficientStock(InsufficientStockException e) {
+        ErrorResponse error = new ErrorResponse(
+                e.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
 
