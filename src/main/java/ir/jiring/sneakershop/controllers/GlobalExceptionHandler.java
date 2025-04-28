@@ -1,7 +1,9 @@
 package ir.jiring.sneakershop.controllers;
 
+import ir.jiring.sneakershop.dto.cart.CartItemResponse;
 import ir.jiring.sneakershop.dto.error.ErrorResponse;
 import ir.jiring.sneakershop.exceptions.*;
+import ir.jiring.sneakershop.mapper.CartMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -148,6 +153,46 @@ public class GlobalExceptionHandler {
                 null
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(PriceMismatchException.class)
+    public ResponseEntity<ErrorResponse> handlePriceMismatch(PriceMismatchException e) {
+        List<CartItemResponse> mismatchedResponses = e.getMismatchedItems().stream()
+                .map(CartMapper::toItemResponse)
+                .toList();
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("mismatchedItems", mismatchedResponses);
+
+        ErrorResponse error = new ErrorResponse(
+                e.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                LocalDateTime.now(),
+                body
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(EmptyCartException.class)
+    public ResponseEntity<ErrorResponse> handleEmptyCart(EmptyCartException e) {
+        ErrorResponse error = new ErrorResponse(
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(PaymentFailedException.class)
+    public ResponseEntity<ErrorResponse> handlePaymentFailed(PaymentFailedException e) {
+        ErrorResponse error = new ErrorResponse(
+                e.getMessage(),
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
     }
 
 
