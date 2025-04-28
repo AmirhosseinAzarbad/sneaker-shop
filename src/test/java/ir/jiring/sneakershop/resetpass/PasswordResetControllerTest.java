@@ -1,5 +1,4 @@
 package ir.jiring.sneakershop.resetpass;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ir.jiring.sneakershop.dto.password.PasswordResetRequest;
 import ir.jiring.sneakershop.dto.phoneNumber.PhoneNumberRequest;
@@ -10,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -30,6 +30,7 @@ class PasswordResetControllerTest {
     private MockMvc mvc;
 
     @Autowired
+    @Qualifier("objectMapper")
     private ObjectMapper json;
 
     @MockitoBean
@@ -129,3 +130,4 @@ class PasswordResetControllerTest {
         }
     }
 }
+
