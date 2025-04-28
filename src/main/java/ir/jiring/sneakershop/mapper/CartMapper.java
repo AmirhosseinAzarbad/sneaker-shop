@@ -57,8 +57,9 @@ public class CartMapper {
         cart.setId(rc.getId());
         cart.setStatus(rc.getStatus());
 
-        userRepo.findById(rc.getUserId())
-                .ifPresent(cart::setUser);
+        User user = userRepo.findById(rc.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found for id: " + rc.getUserId()));
+        cart.setUser(user);
 
         cart.setItems(rc.getItems().stream().map(ri -> {
             CartItem item = new CartItem();
