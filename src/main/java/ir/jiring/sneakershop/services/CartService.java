@@ -61,7 +61,7 @@ public class CartService {
                     Cart cart = new Cart();
                     cart.setUser(user);
                     cart.setStatus(CartStatus.ACTIVE);
-                    cartRedisService.saveRedisCart(username,cart);
+                    cartRedisService.saveRedisCart(username, cart);
                     return cart;
                 });
     }
@@ -78,23 +78,23 @@ public class CartService {
 
 
         CartItem item = cart.getItems().stream()
-                .filter(ci ->  ci.getVariant() != null && ci.getVariant().getId().equals(variant.getId()))
+                .filter(ci -> ci.getVariant() != null && ci.getVariant().getId().equals(variant.getId()))
                 .findFirst()
                 .orElseGet(() -> {
-            CartItem newItem = new CartItem();
-            newItem.setId(UUID.randomUUID());
-            newItem.setCart(cart);
-            newItem.setVariant(variant);
-            newItem.setQuantity(0);
-            newItem.setPriceAtTime(variant.getPrice() != null ? variant.getPrice() : variant.getSneaker().getPrice());
-            cart.getItems().add(newItem);
+                    CartItem newItem = new CartItem();
+                    newItem.setId(UUID.randomUUID());
+                    newItem.setCart(cart);
+                    newItem.setVariant(variant);
+                    newItem.setQuantity(0);
+                    newItem.setPriceAtTime(variant.getPrice() != null ? variant.getPrice() : variant.getSneaker().getPrice());
+                    cart.getItems().add(newItem);
 
-            return newItem;
-        });
+                    return newItem;
+                });
         item.setQuantity(item.getQuantity() + request.getQuantity());
 
 
-        cartRedisService.saveRedisCart(username,cart);
+        cartRedisService.saveRedisCart(username, cart);
         return CartMapper.toCartResponse(cart);
     }
 
@@ -108,19 +108,23 @@ public class CartService {
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
 
+        if (item.getVariant() == null) {
+            throw new EntityNotFoundException("CartItem has no variant!");
+        }
+
         if (!cart.getUser().getUsername().equals(username)) {
             throw new AccessDeniedException("Access Denied");
         }
 
         int oldQty = item.getQuantity();
         int newQty = request.getQuantity();
-        int delta  = newQty - oldQty;
+        int delta = newQty - oldQty;
 
-        if (delta > 0)  stockManager.reserve(item.getVariant().getId(), delta);
-        else if (delta < 0) stockManager.release(item.getVariant().getId(), - delta);
+        if (delta > 0) stockManager.reserve(item.getVariant().getId(), delta);
+        else if (delta < 0) stockManager.release(item.getVariant().getId(), -delta);
 
         item.setQuantity(newQty);
-        cartRedisService.saveRedisCart(username,cart);
+        cartRedisService.saveRedisCart(username, cart);
         return CartMapper.toCartResponse(cart);
     }
 
@@ -140,7 +144,7 @@ public class CartService {
 
         cart.getItems().remove(item);
         cartItemRepo.delete(item);
-        cartRedisService.saveRedisCart(username,cart);
+        cartRedisService.saveRedisCart(username, cart);
         return CartMapper.toCartResponse(cart);
     }
 
@@ -152,7 +156,7 @@ public class CartService {
             throw new EmptyCartException("Cart is empty!");
         }
 
-        cartRedisService.saveRedisCart(username,cart);
+        cartRedisService.saveRedisCart(username, cart);
 
         List<CartItem> mismatchedItems = new ArrayList<>();
 
@@ -175,21 +179,21 @@ public class CartService {
         cart.setRecipientPhoneNumber(request.getRecipientPhoneNumber());
         cart.setShippingPostalCode(request.getShippingPostalCode());
 
-        cartRedisService.saveRedisCart(username,cart);
+        cartRedisService.saveRedisCart(username, cart);
         boolean paymentSuccess = new Random().nextDouble() < 0.8;
         if (!paymentSuccess) {
             throw new PaymentFailedException("Payment failed. please try again");
         }
 
         try {
-        cart.setStatus(CartStatus.CHECKED_OUT);
-        cartRedisService.deleteAfterCheckout(username);
-        Cart savedCart = cartRepo.save(cart);
+            cart.setStatus(CartStatus.CHECKED_OUT);
+            cartRedisService.deleteAfterCheckout(username);
+            Cart savedCart = cartRepo.save(cart);
 
 //       cartItemRepo.saveAll(savedCart.getItems());
 
-        return CartMapper.toCartResponse(savedCart);
-        }catch (Exception e) {
+            return CartMapper.toCartResponse(savedCart);
+        } catch (Exception e) {
             stockManager.releaseCart(cart);
             throw e;
         }
@@ -215,7 +219,7 @@ public class CartService {
         item.setPriceAtTime(currentPrice);
         item.setPriceConfirmed(true);
 
-        cartRedisService.saveRedisCart(username,cart);
+        cartRedisService.saveRedisCart(username, cart);
         return CartMapper.toCartResponse(cart);
     }
 }
