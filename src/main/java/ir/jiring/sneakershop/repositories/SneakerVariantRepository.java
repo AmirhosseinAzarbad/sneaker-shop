@@ -17,6 +17,8 @@ public interface SneakerVariantRepository extends JpaRepository<SneakerVariant, 
     @Query("SELECT v FROM SneakerVariant v WHERE v.id = :id")
     Optional<SneakerVariant> findByIdForUpdate(@Param("id") UUID id);
 
+    Optional<SneakerVariant> findBySneakerIdAndSizeAndColor(UUID sneakerId, String size, String color);
+
     List<SneakerVariant> findAllBySneakerId(UUID sneakerId);
 
     Optional<SneakerVariant> findById(UUID id);
