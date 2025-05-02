@@ -42,11 +42,6 @@ public class Cart implements Serializable {
     private String shippingPostalCode;
 
 
-    @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();
-    }
-
     @Enumerated(EnumType.STRING)
     private CartStatus status = CartStatus.ACTIVE;
 
