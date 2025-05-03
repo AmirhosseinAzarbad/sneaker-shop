@@ -26,5 +26,6 @@ public class RedisCartItem implements Serializable {
     @NotNull
     private BigDecimal priceAtTime;
 
+    @NotNull
     private boolean priceConfirmed = false;
 }
