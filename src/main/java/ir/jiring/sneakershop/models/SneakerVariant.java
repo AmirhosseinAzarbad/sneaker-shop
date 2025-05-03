@@ -32,6 +32,5 @@ public class SneakerVariant implements Serializable {
     private BigDecimal price;
 
     @ManyToOne
-    @JoinColumn(name = "sneaker_id")
     private Sneaker sneaker;
 }
