@@ -1,6 +1,7 @@
 package ir.jiring.sneakershop.models;
 
 import ir.jiring.sneakershop.enums.CartStatus;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serial;
@@ -8,7 +9,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import jakarta.validation.constraints.NotNull;
 
 @Data
 public class RedisCart implements Serializable {
