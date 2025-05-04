@@ -5,7 +5,7 @@ import ir.jiring.sneakershop.exceptions.InvalidOtpException;
 import ir.jiring.sneakershop.exceptions.InvalidPasswordException;
 import ir.jiring.sneakershop.exceptions.MissingPasswordException;
 import ir.jiring.sneakershop.enums.Role;
-import ir.jiring.sneakershop.configs.SystemConfig;
+import ir.jiring.sneakershop.models.AdminRegPass;
 import ir.jiring.sneakershop.models.User;
 import ir.jiring.sneakershop.repositories.SystemConfigRepository;
 import ir.jiring.sneakershop.repositories.UserRepository;
@@ -87,7 +87,7 @@ public class AuthService {
             throw new InvalidPasswordException("Incorrect owner registration password.");
         }
         if (systemConfigRepository.count() == 0) {
-            SystemConfig config = new SystemConfig(passwordEncoder.encode("adminforsneakershop"));
+            AdminRegPass config = new AdminRegPass(passwordEncoder.encode("adminforsneakershop"));
             systemConfigRepository.save(config);
         }
         user.setRole(Role.OWNER);
@@ -99,7 +99,7 @@ public class AuthService {
         if (!userRepository.existsByRole(Role.OWNER)) {
             throw new IllegalStateException("No OWNER registered yet. ADMIN registration is not allowed.");
         }
-        SystemConfig config = systemConfigRepository.findFirstByOrderByIdAsc()
+        AdminRegPass config = systemConfigRepository.findFirstByOrderByIdAsc()
                 .orElseThrow(() -> new EntityNotFoundException("System config not found!"));
         if (!passwordEncoder.matches(user.getPassword(), config.getAdminRegistrationPassword())) {
             throw new InvalidPasswordException("Incorrect admin registration password.");
@@ -119,7 +119,7 @@ public class AuthService {
     }
 
     public void updateAdminPassword(String newPassword) {
-        SystemConfig config = systemConfigRepository.findFirstByOrderByIdAsc()
+        AdminRegPass config = systemConfigRepository.findFirstByOrderByIdAsc()
                 .orElseThrow(() -> new EntityNotFoundException("System config not found!.No owner registered yet"));
         config.setAdminRegistrationPassword(passwordEncoder.encode(newPassword));
         systemConfigRepository.save(config);

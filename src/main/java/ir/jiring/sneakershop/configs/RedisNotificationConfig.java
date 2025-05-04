@@ -6,6 +6,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.MessageListener;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
@@ -42,7 +43,7 @@ public class RedisNotificationConfig {
     @Bean
     public ApplicationRunner enableRedisNotifications(RedisConnectionFactory factory) {
         return args -> {
-            try (var connection = factory.getConnection()) {
+            try (RedisConnection connection = factory.getConnection()) {
                 connection.serverCommands()
                         .setConfig("notify-keyspace-events", "Ex");
             }
