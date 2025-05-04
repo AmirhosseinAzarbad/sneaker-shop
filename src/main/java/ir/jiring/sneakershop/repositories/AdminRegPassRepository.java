@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SystemConfigRepository extends JpaRepository<AdminRegPass, Long> {
+public interface AdminRegPassRepository extends JpaRepository<AdminRegPass, Long> {
     Optional<AdminRegPass> findFirstByOrderByIdAsc();
 
 }
