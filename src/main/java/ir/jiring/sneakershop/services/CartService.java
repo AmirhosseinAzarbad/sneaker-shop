@@ -32,19 +32,21 @@ public class CartService {
     private final CartRepository cartRepo;
     private final CartItemRepository cartItemRepo;
     private final StockManager stockManager;
+    private final OrderService orderService;
 
     public CartService(CartRedisService cartRedisService,
                        UserRepository userRepo,
                        SneakerVariantRepository variantRepo,
                        CartRepository cartRepo,
                        CartItemRepository cartItemRepo,
-                       StockManager stockManager) {
+                       StockManager stockManager, OrderService orderService) {
         this.cartRedisService = cartRedisService;
         this.userRepo = userRepo;
         this.variantRepo = variantRepo;
         this.cartRepo = cartRepo;
         this.cartItemRepo = cartItemRepo;
         this.stockManager = stockManager;
+        this.orderService = orderService;
     }
 
     public CartResponse getOrCreateCartResponse(String username) {
@@ -191,7 +193,7 @@ public class CartService {
             Cart savedCart = cartRepo.save(cart);
 
 //       cartItemRepo.saveAll(savedCart.getItems());
-
+            orderService.placeOrder(username);
             return CartMapper.toCartResponse(savedCart);
         } catch (Exception e) {
             stockManager.releaseCart(cart);
