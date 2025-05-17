@@ -5,9 +5,9 @@ import ir.jiring.sneakershop.exceptions.InvalidOtpException;
 import ir.jiring.sneakershop.exceptions.InvalidPasswordException;
 import ir.jiring.sneakershop.exceptions.MissingPasswordException;
 import ir.jiring.sneakershop.enums.Role;
-import ir.jiring.sneakershop.configs.SystemConfig;
+import ir.jiring.sneakershop.models.AdminRegPass;
 import ir.jiring.sneakershop.models.User;
-import ir.jiring.sneakershop.repositories.SystemConfigRepository;
+import ir.jiring.sneakershop.repositories.AdminRegPassRepository;
 import ir.jiring.sneakershop.repositories.UserRepository;
 import ir.jiring.sneakershop.security.jwt.JwtTokenProvider;
 import ir.jiring.sneakershop.utils.PhoneNumberUtil;
@@ -30,19 +30,19 @@ public class AuthService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
-    private final SystemConfigRepository systemConfigRepository;
+    private final AdminRegPassRepository adminRegPassRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final OtpService otpService;
 
     public AuthService(
             PasswordEncoder passwordEncoder,
             UserRepository userRepository,
-            SystemConfigRepository systemConfigRepository,
+            AdminRegPassRepository adminRegPassRepository,
             JwtTokenProvider jwtTokenProvider,
             OtpService otpService) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
-        this.systemConfigRepository = systemConfigRepository;
+        this.adminRegPassRepository = adminRegPassRepository;
         this.jwtTokenProvider = jwtTokenProvider;
         this.otpService = otpService;
     }
@@ -86,9 +86,9 @@ public class AuthService {
         if (!user.getPassword().equals(ownerRegistrationPassword)) {
             throw new InvalidPasswordException("Incorrect owner registration password.");
         }
-        if (systemConfigRepository.count() == 0) {
-            SystemConfig config = new SystemConfig(passwordEncoder.encode("adminforsneakershop"));
-            systemConfigRepository.save(config);
+        if (adminRegPassRepository.count() == 0) {
+            AdminRegPass adminRegPass = new AdminRegPass(passwordEncoder.encode("adminforsneakershop"));
+            adminRegPassRepository.save(adminRegPass);
         }
         user.setRole(Role.OWNER);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -99,9 +99,9 @@ public class AuthService {
         if (!userRepository.existsByRole(Role.OWNER)) {
             throw new IllegalStateException("No OWNER registered yet. ADMIN registration is not allowed.");
         }
-        SystemConfig config = systemConfigRepository.findFirstByOrderByIdAsc()
-                .orElseThrow(() -> new EntityNotFoundException("System config not found!"));
-        if (!passwordEncoder.matches(user.getPassword(), config.getAdminRegistrationPassword())) {
+        AdminRegPass adminRegPass = adminRegPassRepository.findFirstByOrderByIdAsc()
+                .orElseThrow(() -> new EntityNotFoundException("System adminRegPass not found!"));
+        if (!passwordEncoder.matches(user.getPassword(), adminRegPass.getAdminRegistrationPassword())) {
             throw new InvalidPasswordException("Incorrect admin registration password.");
         }
         user.setRole(Role.ADMIN);
@@ -119,10 +119,10 @@ public class AuthService {
     }
 
     public void updateAdminPassword(String newPassword) {
-        SystemConfig config = systemConfigRepository.findFirstByOrderByIdAsc()
-                .orElseThrow(() -> new EntityNotFoundException("System config not found!.No owner registered yet"));
-        config.setAdminRegistrationPassword(passwordEncoder.encode(newPassword));
-        systemConfigRepository.save(config);
+        AdminRegPass adminRegPass = adminRegPassRepository.findFirstByOrderByIdAsc()
+                .orElseThrow(() -> new EntityNotFoundException("System adminRegPass not found!.No owner registered yet"));
+        adminRegPass.setAdminRegistrationPassword(passwordEncoder.encode(newPassword));
+        adminRegPassRepository.save(adminRegPass);
         List<User> adminUsers = userRepository.findByRole(Role.ADMIN);
         for (User admin : adminUsers) {
             admin.setPassword(passwordEncoder.encode(newPassword));

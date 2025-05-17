@@ -1,4 +1,4 @@
-package ir.jiring.sneakershop.configs;
+package ir.jiring.sneakershop.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Table(name = "system_config")
-public class SystemConfig {
+public class AdminRegPass {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -19,7 +19,7 @@ public class SystemConfig {
     @Column(name = "admin_registration_password", nullable = false)
     private String adminRegistrationPassword;
 
-    public SystemConfig(String adminRegistrationPassword) {
+    public AdminRegPass(String adminRegistrationPassword) {
         this.adminRegistrationPassword = adminRegistrationPassword;
     }
 }

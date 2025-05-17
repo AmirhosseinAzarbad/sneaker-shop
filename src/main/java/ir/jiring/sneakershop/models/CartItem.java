@@ -22,10 +22,10 @@ public class CartItem implements Serializable {
     @Id
     private UUID id = UUID.randomUUID();
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private Cart cart;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private SneakerVariant variant;
 
     private int quantity;
