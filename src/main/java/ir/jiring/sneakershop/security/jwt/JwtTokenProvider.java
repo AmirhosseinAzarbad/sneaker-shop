@@ -50,12 +50,23 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
+    public Date getExpirationDateFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
+    }
+
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
+            Date expiration = getExpirationDateFromToken(token);
+            if (expiration.before(new Date()))
+                return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+        return false;
     }
 }
