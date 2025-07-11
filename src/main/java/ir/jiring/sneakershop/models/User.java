@@ -12,8 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.io.Serial;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Data
@@ -45,19 +43,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Role role = Role.USER;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_authorities", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "authority")
-    private List<String> authorities;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (authorities == null || authorities.isEmpty()) {
-            return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
-        }
-        return authorities.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
