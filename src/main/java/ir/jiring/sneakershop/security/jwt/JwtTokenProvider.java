@@ -62,7 +62,7 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Date expiration = getExpirationDateFromToken(token);
-            if (expiration.before(new Date()))
+            if (expiration.after(new Date()))
                 return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
