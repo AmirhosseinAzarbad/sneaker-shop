@@ -1,9 +1,9 @@
 package ir.jiring.sneakershop.resetpass;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ir.jiring.sneakershop.dto.password.PasswordResetRequest;
 import ir.jiring.sneakershop.dto.phoneNumber.PhoneNumberRequest;
 import ir.jiring.sneakershop.exceptions.InvalidOtpException;
-import ir.jiring.sneakershop.security.jwt.JwtTokenProvider;
 import ir.jiring.sneakershop.services.PasswordResetService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -22,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 class PasswordResetControllerTest {
@@ -32,9 +34,6 @@ class PasswordResetControllerTest {
     @Autowired
     @Qualifier("objectMapper")
     private ObjectMapper json;
-
-    @MockitoBean
-    private JwtTokenProvider jwtTokenProvider;
 
     @MockitoBean
     private PasswordResetService resetService;
