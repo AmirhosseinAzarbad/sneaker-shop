@@ -1,30 +1,34 @@
 # This Docker Compose file sets up a Spring Boot app with an Oracle XE database.
-version: '3.8'
-
 
 services:
   # Database service using Oracle XE 11g with persistent storage and health checks.
   db:
-    image: oracleinanutshell/oracle-xe-11g
+    image: gvenzl/oracle-xe
     environment:
+      - SPRING_PROFILES_ACTIVE=pro
       - ORACLE_ALLOW_REMOTE=true
       - ORACLE_PASSWORD=${ORACLE_PASSWORD}
     ports:
-      - "1521:1521"
+      - "1600:1521"
     volumes:
-      - oracle-data:/u01/app/oracle
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - sneaker-network
     restart: always
     healthcheck:
-      test: [ "CMD", "tnsping", "xe" ]
+      test: ["CMD", "sqlplus", "-L", "system/azarshah0@//db:1521/XE", "@/healthcheck.sql"]
       interval: 30s
       timeout: 10s
-      retries: 5
+      retries: 10
 
   # Spring Boot application service, depends on healthy DB and connects to Oracle.
   app:
     build: .
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@db:1521:xe
+      - SPRING_PROFILES_ACTIVE=pro
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//db:1521/XE
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
       - SPRING_DATASOURCE_USERNAME=${DB_USER}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - SPRING_APPLICATION_NAME=sneaker-shop
@@ -33,10 +37,25 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      db:
-        condition: service_healthy
-    restart: always
+      db :
+         condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - sneaker-network
+
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - sneaker-network
 
 # Volume to persist Oracle DB data across container restarts.
 volumes:
   oracle-data:
+
+networks:
+  sneaker-network:
+    driver: bridge
