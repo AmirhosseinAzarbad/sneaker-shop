@@ -1,4 +1,4 @@
-FROM maven:3.8.6-jdk-17 AS build
+FROM maven:3.9.4-eclipse-temurin-21 AS build
 WORKDIR /app
 
 # Cache dependencies
@@ -10,7 +10,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Stage 2: Create the final image
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:21-jdk AS runtime
 WORKDIR /app
 
 # Add non-root user for security
