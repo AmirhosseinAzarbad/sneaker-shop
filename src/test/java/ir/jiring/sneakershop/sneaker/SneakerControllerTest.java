@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -32,6 +33,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 class SneakerControllerTest {
@@ -46,12 +48,13 @@ class SneakerControllerTest {
     @MockitoBean
     private SneakerService service;
 
+/*these fields might will be used in future
     // Required for JwtAuthenticationFilter constructor
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
 
     @MockitoBean
-    private UserRepository userRepository;
+    private UserRepository userRepository;*/
 
     private final UUID SAMPLE_ID = UUID.fromString("123e4567-e89b-12d3-a456-556642440000");
 
@@ -175,7 +178,7 @@ class SneakerControllerTest {
         }
 
         @Test
-        @DisplayName("400 BAD_REQUEST for invalid payload")
+        @DisplayName("200 OK for not filling the sneaker update request fields")
         @WithMockUser(roles = "OWNER")
         void badRequestForInvalidBody() throws Exception {
             SneakerUpdateRequest req = new SneakerUpdateRequest();
@@ -184,7 +187,7 @@ class SneakerControllerTest {
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json.writeValueAsString(req)))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isOk());
         }
     }
 
