@@ -38,7 +38,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/register", "/auth/login","/api/sneakers/show","/api/sneakers/show/**"
-                                , "/auth/password-reset/**" ,"/auth/send-otp","/api/sneaker-variants/show/**").permitAll()
+                                , "/auth/password-reset/**" ,"/auth/send-otp","/api/sneaker-variants/show/**"
+                        ,"api/sneakers/fuzzySearch/**","/api/sneakers/autoSuggest/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
