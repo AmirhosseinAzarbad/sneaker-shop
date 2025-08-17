@@ -1,4 +1,4 @@
-package ir.jiring.sneakershop.repositories;
+package ir.jiring.sneakershop.repositories.jpa;
 
 import ir.jiring.sneakershop.models.SneakerVariant;
 import jakarta.persistence.LockModeType;

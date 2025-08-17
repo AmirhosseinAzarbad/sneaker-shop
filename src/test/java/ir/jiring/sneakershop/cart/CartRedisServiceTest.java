@@ -2,8 +2,8 @@ package ir.jiring.sneakershop.cart;
 
 import ir.jiring.sneakershop.mapper.CartMapper;
 import ir.jiring.sneakershop.models.*;
-import ir.jiring.sneakershop.repositories.SneakerVariantRepository;
-import ir.jiring.sneakershop.repositories.UserRepository;
+import ir.jiring.sneakershop.repositories.jpa.SneakerVariantRepository;
+import ir.jiring.sneakershop.repositories.jpa.UserRepository;
 import ir.jiring.sneakershop.services.CartRedisService;
 import ir.jiring.sneakershop.services.StockManager;
 import ir.jiring.sneakershop.utils.CartKeyProvider;

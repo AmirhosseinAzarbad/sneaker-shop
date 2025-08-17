@@ -6,8 +6,10 @@ import ir.jiring.sneakershop.dto.sneaker.SneakerResponse;
 import ir.jiring.sneakershop.dto.sneaker.SneakerUpdateRequest;
 import ir.jiring.sneakershop.models.Sneaker;
 import ir.jiring.sneakershop.models.SneakerVariant;
-import ir.jiring.sneakershop.repositories.SneakerRepository;
+import ir.jiring.sneakershop.repositories.elasticsearch.SneakerRepositoryElasticsearch;
+import ir.jiring.sneakershop.repositories.jpa.SneakerRepositoryJpa;
 import ir.jiring.sneakershop.services.SneakerService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,9 +19,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -33,7 +36,10 @@ import static org.mockito.Mockito.*;
 class SneakerServiceTest {
 
     @Mock
-    private SneakerRepository sneakerRepository;
+    private SneakerRepositoryElasticsearch sneakerRepositoryElasticSearch;
+
+    @Mock
+    private SneakerRepositoryJpa sneakerRepositoryJpa;
 
     @InjectMocks
     private SneakerService sneakerService;
@@ -69,7 +75,7 @@ class SneakerServiceTest {
             req.setBrand("Nike");
             req.setPrice(BigDecimal.valueOf(120));
 
-            when(sneakerRepository.save(any(Sneaker.class)))
+            when(sneakerRepositoryElasticSearch.save(any(Sneaker.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             SneakerResponse resp = sneakerService.addSneaker(req);
@@ -77,7 +83,7 @@ class SneakerServiceTest {
             assertThat(resp.getName()).isEqualTo("Air Force 1");
             assertThat(resp.getBrand()).isEqualTo("Nike");
             assertThat(resp.getPrice()).isEqualByComparingTo(BigDecimal.valueOf(120));
-            verify(sneakerRepository, times(1)).save(any(Sneaker.class));
+            verify(sneakerRepositoryElasticSearch, times(1)).save(any(Sneaker.class));
         }
     }
 
@@ -88,7 +94,7 @@ class SneakerServiceTest {
         @Test
         @DisplayName("should return all sneakers as responses")
         void shouldReturnListOfResponses() {
-            when(sneakerRepository.findAll()).thenReturn(List.of(sampleSneaker));
+            when(sneakerRepositoryJpa.findAll()).thenReturn(List.of(sampleSneaker));
 
             Iterable<SneakerResponse> responses = sneakerService.getAllSneakers();
             List<SneakerResponse> list = StreamSupport.stream(responses.spliterator(), false)
@@ -96,7 +102,7 @@ class SneakerServiceTest {
 
             assertThat(list).hasSize(1);
             assertThat(list.getFirst().getId()).isEqualTo(sampleId);
-            verify(sneakerRepository, times(1)).findAll();
+            verify(sneakerRepositoryJpa, times(1)).findAll();
         }
     }
 
@@ -112,8 +118,8 @@ class SneakerServiceTest {
             req.setBrand("Lost and Found");
             req.setPrice(BigDecimal.valueOf(150));
 
-            when(sneakerRepository.findById(sampleId)).thenReturn(Optional.of(sampleSneaker));
-            when(sneakerRepository.save(sampleSneaker)).thenReturn(sampleSneaker);
+            when(sneakerRepositoryElasticSearch.findById(sampleId)).thenReturn(Optional.of(sampleSneaker));
+            when(sneakerRepositoryElasticSearch.save(sampleSneaker)).thenReturn(sampleSneaker);
 
             SneakerResponse resp = sneakerService.updateSneaker(sampleId, req);
 
@@ -124,20 +130,20 @@ class SneakerServiceTest {
             assertThat(sampleSneaker.getVariants().getFirst().getPrice())
                     .isEqualByComparingTo(BigDecimal.valueOf(150));
 
-            verify(sneakerRepository).findById(sampleId);
-            verify(sneakerRepository).save(sampleSneaker);
+            verify(sneakerRepositoryElasticSearch).findById(sampleId);
+            verify(sneakerRepositoryElasticSearch).save(sampleSneaker);
         }
 
         @Test
         @DisplayName("non-existing sneaker should throw EntityNotFoundException")
         void nonExistingSneakerShouldThrow() {
-            when(sneakerRepository.findById(sampleId)).thenReturn(Optional.empty());
+            when(sneakerRepositoryElasticSearch.findById(sampleId)).thenReturn(Optional.empty());
 
             assertThrows(EntityNotFoundException.class,
                     () -> sneakerService.updateSneaker(sampleId, new SneakerUpdateRequest()));
 
-            verify(sneakerRepository).findById(sampleId);
-            verify(sneakerRepository, never()).save(any());
+            verify(sneakerRepositoryElasticSearch).findById(sampleId);
+            verify(sneakerRepositoryElasticSearch, never()).save(any());
         }
     }
 
@@ -148,24 +154,24 @@ class SneakerServiceTest {
         @Test
         @DisplayName("existing sneaker should be deleted")
         void existingSneakerShouldInvokeDelete() {
-            when(sneakerRepository.findById(sampleId)).thenReturn(Optional.of(sampleSneaker));
+            when(sneakerRepositoryJpa.findById(sampleId)).thenReturn(Optional.of(sampleSneaker));
 
             sneakerService.deleteSneaker(sampleId);
 
-            verify(sneakerRepository).findById(sampleId);
-            verify(sneakerRepository).delete(sampleSneaker);
+            verify(sneakerRepositoryJpa).findById(sampleId);
+            verify(sneakerRepositoryJpa).delete(sampleSneaker);
         }
 
         @Test
         @DisplayName("non-existing sneaker deletion should throw EntityNotFoundException")
         void nonExistingSneakerShouldThrow() {
-            when(sneakerRepository.findById(sampleId)).thenReturn(Optional.empty());
+            when(sneakerRepositoryJpa.findById(sampleId)).thenReturn(Optional.empty());
 
             assertThrows(EntityNotFoundException.class,
                     () -> sneakerService.deleteSneaker(sampleId));
 
-            verify(sneakerRepository).findById(sampleId);
-            verify(sneakerRepository, never()).delete(any());
+            verify(sneakerRepositoryJpa).findById(sampleId);
+            verify(sneakerRepositoryJpa, never()).delete(any());
         }
     }
 }

@@ -1,7 +1,7 @@
 package ir.jiring.sneakershop.security.jwt;
 
 import ir.jiring.sneakershop.models.User;
-import ir.jiring.sneakershop.repositories.UserRepository;
+import ir.jiring.sneakershop.repositories.jpa.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,7 +31,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/sneakers/show/**",
             "/auth/password-reset/**",
             "/auth/send-otp",
-            "/api/sneaker-variants/show/**"
+            "/api/sneaker-variants/show/**",
+            "api/sneakers/fuzzySearch/**",
+            "/api/sneakers/autoSuggest/**"
     );
 
     public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {

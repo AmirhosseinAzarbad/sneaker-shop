@@ -3,7 +3,7 @@ package ir.jiring.sneakershop.services;
 import ir.jiring.sneakershop.exceptions.InsufficientStockException;
 import ir.jiring.sneakershop.models.Cart;
 import ir.jiring.sneakershop.models.SneakerVariant;
-import ir.jiring.sneakershop.repositories.SneakerVariantRepository;
+import ir.jiring.sneakershop.repositories.jpa.SneakerVariantRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

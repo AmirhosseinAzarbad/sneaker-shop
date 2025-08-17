@@ -7,8 +7,11 @@ import ir.jiring.sneakershop.dto.sneaker.SneakerUpdateRequest;
 import ir.jiring.sneakershop.mapper.SneakerMapper;
 import ir.jiring.sneakershop.models.Sneaker;
 import ir.jiring.sneakershop.models.SneakerVariant;
-import ir.jiring.sneakershop.repositories.SneakerRepository;
+import ir.jiring.sneakershop.repositories.elasticsearch.SneakerRepositoryElasticsearch;
+import ir.jiring.sneakershop.repositories.jpa.SneakerRepositoryJpa;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,10 +23,20 @@ import java.util.stream.Collectors;
 @Service
 public class SneakerService {
 
-    private final SneakerRepository sneakerRepository;
+    @Qualifier("sneakerRepositoryElasticsearch")
+    private final SneakerRepositoryElasticsearch sneakerRepositoryElasticSearch;
 
-    public SneakerService(SneakerRepository sneakerRepository) {
-        this.sneakerRepository = sneakerRepository;
+    @Qualifier("sneakerRepositoryJpa")
+    private final SneakerRepositoryJpa sneakerRepositoryJpa;
+
+    ElasticsearchTemplate elasticsearchTemplate;
+
+    public SneakerService(SneakerRepositoryElasticsearch sneakerRepositoryElasticSearch,
+                          SneakerRepositoryJpa sneakerRepositoryJpa,
+                          ElasticsearchTemplate elasticsearchTemplate) {
+        this.sneakerRepositoryElasticSearch = sneakerRepositoryElasticSearch;
+        this.sneakerRepositoryJpa = sneakerRepositoryJpa;
+        this.elasticsearchTemplate = elasticsearchTemplate;
     }
 
     // Create Sneaker
@@ -33,13 +46,15 @@ public class SneakerService {
         sneaker.setName(request.getName());
         sneaker.setBrand(request.getBrand());
         sneaker.setPrice(request.getPrice());
-        sneakerRepository.save(sneaker);
+        sneakerRepositoryJpa.save(sneaker);
+        sneakerRepositoryElasticSearch.save(sneaker);
         return SneakerMapper.toSneakerResponseDTO(sneaker);
     }
 
 
+
     public Iterable<SneakerResponse> getAllSneakers() {
-        List<Sneaker> sneakers = sneakerRepository.findAll();
+        List<Sneaker> sneakers = sneakerRepositoryJpa.findAll();
 
         return sneakers.stream()
                 .map(SneakerMapper::toSneakerResponseDTO)
@@ -49,7 +64,7 @@ public class SneakerService {
     // Update Sneaker
     @Transactional
     public SneakerResponse updateSneaker(UUID id, SneakerUpdateRequest request) {
-        Sneaker sneaker = sneakerRepository.findById(id)
+        Sneaker sneaker = sneakerRepositoryElasticSearch.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Sneaker not found"));
         if (request.getBrand() != null) {
             sneaker.setBrand(request.getBrand());
@@ -65,16 +80,17 @@ public class SneakerService {
                 variant.setPrice(newPrice);
             }
         }
-        sneakerRepository.save(sneaker);
+        sneakerRepositoryJpa.save(sneaker);
+        sneakerRepositoryElasticSearch.save(sneaker);
         return SneakerMapper.toSneakerResponseDTO(sneaker);
     }
 
     // Delete Sneaker
     @Transactional
     public void deleteSneaker(UUID id) {
-        Sneaker sneaker = sneakerRepository.findById(id)
+        Sneaker sneaker = sneakerRepositoryJpa.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Sneaker not found"));
-        sneakerRepository.delete(sneaker);
+        sneakerRepositoryJpa.delete(sneaker);
+        sneakerRepositoryElasticSearch.delete(sneaker);
     }
-
 }

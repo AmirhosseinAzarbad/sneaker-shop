@@ -3,8 +3,8 @@ package ir.jiring.sneakershop.mapper;
 import ir.jiring.sneakershop.dto.cart.CartItemResponse;
 import ir.jiring.sneakershop.dto.cart.CartResponse;
 import ir.jiring.sneakershop.models.*;
-import ir.jiring.sneakershop.repositories.SneakerVariantRepository;
-import ir.jiring.sneakershop.repositories.UserRepository;
+import ir.jiring.sneakershop.repositories.jpa.SneakerVariantRepository;
+import ir.jiring.sneakershop.repositories.jpa.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.math.BigDecimal;

@@ -7,8 +7,8 @@ import ir.jiring.sneakershop.dto.variant.SneakerVariantGetAllResponse;
 import ir.jiring.sneakershop.dto.variant.SneakerVariantUpdateRequest;
 import ir.jiring.sneakershop.models.Sneaker;
 import ir.jiring.sneakershop.models.SneakerVariant;
-import ir.jiring.sneakershop.repositories.SneakerRepository;
-import ir.jiring.sneakershop.repositories.SneakerVariantRepository;
+import ir.jiring.sneakershop.repositories.elasticsearch.SneakerRepositoryElasticsearch;
+import ir.jiring.sneakershop.repositories.jpa.SneakerVariantRepository;
 import ir.jiring.sneakershop.services.SneakerVariantService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verify;
 class SneakerVariantServiceTest {
 
     @Mock
-    private SneakerRepository sneakerRepository;
+    private SneakerRepositoryElasticsearch sneakerRepositoryElasticSearch;
 
     @Mock
     private SneakerVariantRepository sneakerVariantRepository;
@@ -68,7 +68,7 @@ class SneakerVariantServiceTest {
             req.setStockQuantity(10);
             req.setPrice(new BigDecimal("120"));
 
-            given(sneakerRepository.findById(sneakerId)).willReturn(Optional.of(parent));
+            given(sneakerRepositoryElasticSearch.findById(sneakerId)).willReturn(Optional.of(parent));
             given(sneakerVariantRepository.save(any(SneakerVariant.class)))
                     .willAnswer(invocation -> invocation.getArgument(0));
 
@@ -86,7 +86,7 @@ class SneakerVariantServiceTest {
         @Test
         @DisplayName("Sneaker Not Found")
         void shouldThrowWhenSneakerNotFound() {
-            given(sneakerRepository.findById(sneakerId)).willReturn(Optional.empty());
+            given(sneakerRepositoryElasticSearch.findById(sneakerId)).willReturn(Optional.empty());
             SneakerVariantAddRequest req = new SneakerVariantAddRequest();
             assertThrows(EntityNotFoundException.class,
                     () -> service.addVariant(req, sneakerId));
@@ -102,7 +102,7 @@ class SneakerVariantServiceTest {
             SneakerVariant variant = new SneakerVariant();
             variant.setId(variantId);
             variant.setSneaker(parent);
-            given(sneakerRepository.findById(sneakerId)).willReturn(Optional.of(parent));
+            given(sneakerRepositoryElasticSearch.findById(sneakerId)).willReturn(Optional.of(parent));
             given(sneakerVariantRepository.findAllBySneakerId(sneakerId))
                     .willReturn(List.of(variant));
 
@@ -115,7 +115,7 @@ class SneakerVariantServiceTest {
         @Test
         @DisplayName("No Variants")
         void shouldThrowWhenNoVariants() {
-            given(sneakerRepository.findById(sneakerId)).willReturn(Optional.of(parent));
+            given(sneakerRepositoryElasticSearch.findById(sneakerId)).willReturn(Optional.of(parent));
             given(sneakerVariantRepository.findAllBySneakerId(sneakerId))
                     .willReturn(Collections.emptyList());
 

@@ -7,8 +7,8 @@ import ir.jiring.sneakershop.dto.variant.SneakerVariantUpdateRequest;
 import ir.jiring.sneakershop.mapper.SneakerVariantMapper;
 import ir.jiring.sneakershop.models.Sneaker;
 import ir.jiring.sneakershop.models.SneakerVariant;
-import ir.jiring.sneakershop.repositories.SneakerRepository;
-import ir.jiring.sneakershop.repositories.SneakerVariantRepository;
+import ir.jiring.sneakershop.repositories.elasticsearch.SneakerRepositoryElasticsearch;
+import ir.jiring.sneakershop.repositories.jpa.SneakerVariantRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,17 +20,17 @@ import java.util.UUID;
 @Transactional
 public class SneakerVariantService {
 
-    private final SneakerRepository sneakerRepository;
+    private final SneakerRepositoryElasticsearch sneakerRepositoryElasticSearch;
     private final SneakerVariantRepository sneakerVariantRepository;
 
-    public SneakerVariantService(SneakerVariantRepository sneakerVariantRepository, SneakerRepository sneakerRepository) {
+    public SneakerVariantService(SneakerVariantRepository sneakerVariantRepository, SneakerRepositoryElasticsearch sneakerRepositoryElasticSearch) {
         this.sneakerVariantRepository = sneakerVariantRepository;
-        this.sneakerRepository = sneakerRepository;
+        this.sneakerRepositoryElasticSearch = sneakerRepositoryElasticSearch;
     }
 
 
     public SneakerVariantAddAndUpdateResponse addVariant(SneakerVariantAddRequest request, UUID SneakerId) {
-        Sneaker sneaker = sneakerRepository.findById(SneakerId)
+        Sneaker sneaker = sneakerRepositoryElasticSearch.findById(SneakerId)
                 .orElseThrow(() -> new EntityNotFoundException("Sneaker not found "));
 
         SneakerVariant variant = new SneakerVariant();
@@ -46,7 +46,7 @@ public class SneakerVariantService {
 
     public SneakerVariantGetAllResponse getVariants(UUID sneakerId) {
 
-        Sneaker sneaker = sneakerRepository.findById(sneakerId)
+        Sneaker sneaker = sneakerRepositoryElasticSearch.findById(sneakerId)
                 .orElseThrow(()-> new EntityNotFoundException("Sneaker not found"));
 
 

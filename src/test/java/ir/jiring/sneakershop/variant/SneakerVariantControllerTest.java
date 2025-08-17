@@ -6,6 +6,7 @@ import ir.jiring.sneakershop.dto.variant.SneakerVariantAddAndUpdateResponse;
 import ir.jiring.sneakershop.dto.variant.SneakerVariantAddRequest;
 import ir.jiring.sneakershop.dto.variant.SneakerVariantGetAllResponse;
 import ir.jiring.sneakershop.dto.variant.SneakerVariantUpdateRequest;
+import ir.jiring.sneakershop.repositories.jpa.UserRepository;
 import ir.jiring.sneakershop.services.SneakerVariantService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -51,7 +52,7 @@ class SneakerVariantControllerTest {
     @MockitoBean
     private ir.jiring.sneakershop.security.jwt.JwtTokenProvider jwtTokenProvider;
     @MockitoBean
-    private ir.jiring.sneakershop.repositories.UserRepository userRepository;
+    private UserRepository userRepository;
 
     private final UUID SAMPLE_SNEAKER_ID = UUID.randomUUID();
     private final UUID SAMPLE_VARIANT_ID = UUID.randomUUID();

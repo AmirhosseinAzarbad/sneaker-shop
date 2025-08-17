@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ir.jiring.sneakershop.dto.sneaker.SneakerAddRequest;
 import ir.jiring.sneakershop.dto.sneaker.SneakerResponse;
 import ir.jiring.sneakershop.dto.sneaker.SneakerUpdateRequest;
-import ir.jiring.sneakershop.repositories.UserRepository;
-import ir.jiring.sneakershop.security.jwt.JwtTokenProvider;
 import ir.jiring.sneakershop.services.SneakerService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

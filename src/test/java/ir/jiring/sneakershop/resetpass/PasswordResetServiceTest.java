@@ -2,7 +2,7 @@ package ir.jiring.sneakershop.resetpass;
 
 import ir.jiring.sneakershop.exceptions.InvalidOtpException;
 import ir.jiring.sneakershop.models.User;
-import ir.jiring.sneakershop.repositories.UserRepository;
+import ir.jiring.sneakershop.repositories.jpa.UserRepository;
 import ir.jiring.sneakershop.services.OtpService;
 import ir.jiring.sneakershop.services.PasswordResetService;
 import org.junit.jupiter.api.DisplayName;
