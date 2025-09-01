@@ -10,7 +10,7 @@ import ir.jiring.sneakershop.repositories.elasticsearch.SneakerRepositoryElastic
 import ir.jiring.sneakershop.repositories.jpa.SneakerRepositoryJpa;
 import ir.jiring.sneakershop.services.SneakerService;
 import jakarta.persistence.EntityNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,11 +20,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,11 +43,11 @@ class SneakerServiceTest {
     @InjectMocks
     private SneakerService sneakerService;
 
-    private Sneaker sampleSneaker;
-    private UUID sampleId;
+    private static Sneaker sampleSneaker;
+    private static UUID sampleId;
 
-    @BeforeEach
-    void setUp() {
+    @BeforeAll
+    static void setUp() {
         sampleId = UUID.randomUUID();
         sampleSneaker = new Sneaker();
         sampleSneaker.setId(sampleId);
@@ -70,7 +69,7 @@ class SneakerServiceTest {
         @Test
         @DisplayName("should save a new sneaker and return its response")
         void shouldSaveAndReturnResponse() {
-            var req = new SneakerAddRequest();
+            SneakerAddRequest req = new SneakerAddRequest();
             req.setName("Air Force 1");
             req.setBrand("Nike");
             req.setPrice(BigDecimal.valueOf(120));
@@ -79,7 +78,6 @@ class SneakerServiceTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             SneakerResponse resp = sneakerService.addSneaker(req);
-
             assertThat(resp.getName()).isEqualTo("Air Force 1");
             assertThat(resp.getBrand()).isEqualTo("Nike");
             assertThat(resp.getPrice()).isEqualByComparingTo(BigDecimal.valueOf(120));
@@ -97,8 +95,11 @@ class SneakerServiceTest {
             when(sneakerRepositoryJpa.findAll()).thenReturn(List.of(sampleSneaker));
 
             Iterable<SneakerResponse> responses = sneakerService.getAllSneakers();
-            List<SneakerResponse> list = StreamSupport.stream(responses.spliterator(), false)
-                    .collect(Collectors.toList());
+//            List<SneakerResponse> list = StreamSupport.stream(responses.spliterator(), false)
+//                    .collect(Collectors.toList());
+
+            List<SneakerResponse> list = new ArrayList<>();
+            responses.forEach(list::add);
 
             assertThat(list).hasSize(1);
             assertThat(list.getFirst().getId()).isEqualTo(sampleId);
@@ -113,7 +114,7 @@ class SneakerServiceTest {
         @Test
         @DisplayName("existing sneaker should be updated and return updated response")
         void existingSneakerShouldUpdateFieldsAndVariants() {
-            var req = new SneakerUpdateRequest();
+            SneakerUpdateRequest req = new SneakerUpdateRequest();
             req.setName("Black Cat");
             req.setBrand("Lost and Found");
             req.setPrice(BigDecimal.valueOf(150));
